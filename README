@@ -10,6 +10,9 @@ to the format:
 The goal is to parse the plain text and convert it to a more usable format 
 (i.e. json or xml).
 
+You can test the script parser like this:
+    ./sp < samples/tease.txt
+
 This is very much a work in progress. 
 
 
