@@ -64,10 +64,10 @@ words:	WORD {
 		strcat(wordbuf, $2);
 	}
 	|
-	words WORD UNRECOGNIZED {
-		strcat(wordbuf, " ");
+	words UNRECOGNIZED {
+		//strcat(wordbuf, " ");
 		strcat(wordbuf, $2);
-		strcat(wordbuf, $3);
+		//strcat(wordbuf, $3);
 	}
 	;
 

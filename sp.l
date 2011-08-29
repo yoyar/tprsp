@@ -6,11 +6,11 @@
 %%
 
 
-Joanne|joanne {
+(J|j)oanne {
 	return JOANNETOK;
 }
 
-Tease|tease {
+(T|t)ease {
 	return TEASETOK;
 }
 
