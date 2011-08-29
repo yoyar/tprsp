@@ -1,5 +1,6 @@
 %{
 #include "y.tab.h"
+#include "sp.c";
 %}
 
 %%
@@ -28,8 +29,10 @@ Tease|tease {
 }
 
 [ \t]+ { 
-	/* ignore whitespace */
-	;
+	strcat(wordbuf, " ");
+;
+//	yylval = strdup(yytext);
+//	return WHITESPACE;
 }
 
 \n {
@@ -37,8 +40,11 @@ Tease|tease {
 }
 
 . {
-	/* ignore unrecognized characters */
-	;
+	/* to handle punctuation */
+	yylval = strdup(yytext);
+	return UNRECOGNIZED;
 }
+
+
 
 %%
