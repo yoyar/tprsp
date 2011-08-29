@@ -36,5 +36,9 @@ Tease|tease {
 	return yytext[0];
 }
 
+. {
+	/* ignore unrecognized characters */
+	;
+}
 
 %%
