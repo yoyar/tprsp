@@ -43,7 +43,7 @@ lines: 	line
 	;
 
 line:	tease {  
-		printf("WORDS: %s\n", wordbuf);
+		printf("TEASE: %s\n", wordbuf);
 		wordbuf[0] = 0;
 	}
 	|	
