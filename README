@@ -1,7 +1,8 @@
 This parser generator configuration exists to facilitate the creation of web 
 content (or any other content) from scripts originally composed using M$ Word. 
 
-The scripts are converted to plain text using the program `anitword'. 
+The scripts are converted to plain text using the `anitword' and `iconv'. 
+    antiword -t -w0 script.doc | iconv -t ASCII//TRANSLIT -f UTF8
 
 The lines of interest in the scripts do have some structure. They more or less conform
 to the format: 
