@@ -1,0 +1,2 @@
+lex sp.l && yacc -d sp.y && cc lex.yy.c y.tab.c -o sp
+
