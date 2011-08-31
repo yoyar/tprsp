@@ -1,11 +1,12 @@
 This parser generator configuration exists to facilitate the creation of web 
 content (or any other content) from scripts originally composed using M$ Word. 
 
-The scripts are converted to plain text using the `anitword' and `iconv'. 
+The scripts are converted to plain text using `anitword' and `iconv'. 
+    example:
     antiword -t -w0 script.doc | iconv -t ASCII//TRANSLIT -f UTF8
 
-The lines of interest in the scripts do have some structure. They more or less conform
-to the format: 
+The lines of interest in the scripts do have some structure. They more or less 
+conform to the format: 
     header: words (time specification)
 
 The goal is to parse the plain text and convert it to a more usable format 
@@ -13,7 +14,4 @@ The goal is to parse the plain text and convert it to a more usable format
 
 You can test the script parser like this:
     ./sp < samples/tease.txt
-
-This is very much a work in progress. 
-
 
