@@ -1,7 +1,14 @@
 
+#ifndef SP_C_INCLUDED
+#define SP_C_INCLUDED
+
 char wordbuf[1024];
 
 char linebuf[1024];
+
+//int words_context;
+
+//void set_words_context(int flag);
 
 // #define NDEBUG 0;
 
@@ -14,4 +21,6 @@ char linebuf[1024];
 #define Dputs(MSG) Dprintf("%s", MSG)
 #endif
 
+
+#endif
 
