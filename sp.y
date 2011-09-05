@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <jansson.h>
 #include "sp.c"
 
 #define YYSTYPE char *
@@ -67,6 +68,7 @@ main()
 %error-verbose
 
 %%
+
 
 script:		/* empty script */
 		|
@@ -152,6 +154,23 @@ clipwords:	'(' words ')'
 intro:		INTRO_HEADING words TIMESPEC 
 		{
 			Dprintf("(yacc) INTRO: %s", wordbuf);
+
+			json_t *tprjson = json_array();
+
+			json_error_t *error;
+
+			json_t *intro = json_pack_ex(
+				error,
+				0,
+				"{s:s}", "intro", wordbuf 
+			);
+
+			if( error ) Dprintf("Json error: %s", (char *)error);
+
+			json_array_append(tprjson, intro);
+
+			json_dumpf(tprjson, stdout, 0);
+
 			wordbuf[0] = 0;
 		}
 		;
