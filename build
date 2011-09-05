@@ -1,5 +1,3 @@
 
-#lex sp.l && yacc --debug -d sp.y && cc lex.yy.c y.tab.c -o sp
-
 lex sp.l && bison --debug -d sp.y && cc lex.yy.c sp.tab.c -o sp
 
