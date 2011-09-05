@@ -77,28 +77,20 @@ sections: 	section
 		|
 		sections section
 		;
- 
-section:	'\n'
+
+section: 	'\n' 
+		| 
+		week feature airdate tease intro clip bridge clip wrap ages categories
+		| 
+		week feature airdate tease intro clip bridge clip wrap ages 
+		| 
+		week feature airdate tease intro clip bridge clip wrap 
 		|
-		week  
+		week feature airdate tease intro clip wrap ages categories
 		|
-		feature
+		week feature airdate tease intro clip wrap ages 
 		|
-		airdate 
-		|
-		tease 
-		|
-		intro
-		|
-		clip
-		|
-		bridge
-		|
-		wrap
-		|
-		ages
-		|
-		categories
+		week feature airdate tease intro clip wrap 
 		;
 
 categories:	CATEGORIES_HEADING itemlist '\n' 
@@ -140,12 +132,22 @@ bridge:		BRIDGE_HEADING words TIMESPEC
 		}
 		;	
 
-clip:		CLIP_HEADING OPARENS words EPARENS
+clip:		CLIP_HEADING  clipwords 
 		{
 			Dprintf("(yacc) Clip: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
+		|
+		CLIP_HEADING error  
+		{
+			yyerrok;
+			yyclearin;
+			Dputs("(yacc) Missing Closing Parentheses for Clip");
+		}
 		;	
+
+clipwords:	'(' words ')' 
+		;
 
 intro:		INTRO_HEADING words TIMESPEC 
 		{

@@ -4,6 +4,8 @@
 
 char wordbuf[1024];
 
+int open_parens;
+
 // #define NDEBUG 1;
 
 #ifdef NDEBUG

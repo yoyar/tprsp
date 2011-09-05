@@ -10,6 +10,7 @@
 %x inweek
 %x inweektext
 %x inclip
+%x inclipparens
 %x infeature
 %x infeaturetitle
 %x infeaturetext
@@ -24,6 +25,7 @@ WORD		[a-zA-Z][a-zA-Z0-9]*
 WHITESPACE	[ \t]
 BANNER		"THE PARENT REPORT"
 INSERT_COM	"- INSERT COMMERCIAL -"
+JOANNE		"^(J|j)oanne"
 
 %%
 
@@ -139,17 +141,20 @@ INSERT_COM	"- INSERT COMMERCIAL -"
 	return FEATURE_MISC;
 }
 
-^(C|c)lip:?.+\n {
+^(C|c)lip:?.+\n({WHITESPACE}) {
 	Dprintf("Clip Heading Line: %s \n", yytext);
 	BEGIN inclip;
 	return CLIP_HEADING;
 }
 
 <inclip>{
-	^({WHITESPACE})*\( {
-		Dputs("Clip open brace");
-		BEGIN inclip;
-		return OPARENS;
+
+	\( {
+		return '(';
+	}
+
+	\) {
+		return ')';
 	}
 
 	. {
@@ -157,12 +162,13 @@ INSERT_COM	"- INSERT COMMERCIAL -"
 		return CHAR;
 	}
 
-	\){WHITESPACE}*\n {
-		Dputs("Clip Close Brace");
+	\n {
 		BEGIN 0;
-		return EPARENS;
 	}
 }
+
+
+
 
 ^(A|a)ir {
 	BEGIN air;
