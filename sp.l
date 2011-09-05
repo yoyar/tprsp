@@ -9,16 +9,12 @@
 %x inairdate
 %x inweek
 %x inweektext
-%x intease
-%x inintro
 %x inclip
 %x infeature
 %x infeaturetitle
 %x infeaturetext
-%x inwrap
-%x inbridge
 %x initemlist
-%x inagelist
+%x inwords
 
 %option yylineno
 
@@ -67,77 +63,34 @@ INSERT_COM	"- INSERT COMMERCIAL -"
 <joanne>{
 	(T|t)ease:? {
 		Dputs("Joanne Tease Heading"); 
-		BEGIN intease;
+		BEGIN inwords;
 		return TEASE_HEADING;
 	}
 
 	(I|i)ntro:? {
 		Dputs("Joanne Intro Heading");
-		BEGIN inintro;
+		BEGIN inwords;
 		return INTRO_HEADING;
 	}
 
 	(B|b)ridge:? {
 		Dputs("Bridge Heading");
-		BEGIN inbridge;
+		BEGIN inwords;
 		return BRIDGE_HEADING;
 	}
 
 	(W|w)rap:? {
 		Dputs("Wrap Heading");
-		BEGIN inwrap;
+		BEGIN inwords;
 		return WRAP_HEADING;
 	}
 }
 
-<intease>{
+<inwords>{
 	. {
 		yylval = strdup(yytext);
 		return CHAR;
 	}
-
-	({TIMESPEC}) {
-		BEGIN 0;
-		return TIMESPEC;
-	}
-}
-
-
-
-<inintro>{
-	. {
-		yylval = strdup(yytext);
-		return CHAR;
-	}
-	({TIMESPEC}) {
-		Dputs("Done matching intro");
-		BEGIN 0;
-		return TIMESPEC;
-	}
-}
-
-
-
-<inbridge>{
-	. {
-		yylval = strdup(yytext);
-		return CHAR;
-	}
-
-	({TIMESPEC}) {
-		BEGIN 0;
-		return TIMESPEC;
-	}
-}
-
-
-
-<inwrap>{
-	. {
-		yylval = strdup(yytext);
-		return CHAR;
-	}
-
 	({TIMESPEC}) {
 		BEGIN 0;
 		return TIMESPEC;
