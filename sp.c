@@ -2,7 +2,13 @@
 #ifndef SP_C_INCLUDED
 #define SP_C_INCLUDED
 
+#include <jansson.h>
+
+
 char wordbuf[1024];
+
+json_t * json;
+json_t * itemlist;
 
 // #define NDEBUG 1;
 
