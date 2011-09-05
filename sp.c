@@ -4,23 +4,15 @@
 
 char wordbuf[1024];
 
-char linebuf[1024];
-
-//int words_context;
-
-//void set_words_context(int flag);
-
-// #define NDEBUG 0;
+// #define NDEBUG 1;
 
 #ifdef NDEBUG
 #define Dprintf(FORMAT, ...) ((void)0)
 #define Dputs(MSG) ((void)0)
 #else
-//#define Dprintf(FORMAT, ...) fprintf(stderr, "%s() in %s, line %i: " FORMAT "\n", __func__, __FILE__, __LINE__, __VA_ARGS__)
-#define Dprintf(FORMAT, ...) fprintf(stdout, "%s, line %i: " FORMAT "\n",  __FILE__, __LINE__, __VA_ARGS__)
+#define Dprintf(FORMAT, ...) fprintf(stderr, "%s, line %i: " FORMAT "\n",  __FILE__, __LINE__, __VA_ARGS__)
 #define Dputs(MSG) Dprintf("%s", MSG)
 #endif
-
 
 #endif
 

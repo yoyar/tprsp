@@ -6,7 +6,7 @@
 
 #define YYSTYPE char *
 
-#define YYDEBUG 1
+#define YYDEBUG 0
 	
 extern int yydebug;
 yydebug = 0;
@@ -17,12 +17,10 @@ extern char wordbuf[];
 
 extern char * yytext;
 
-extern int tprsp_lineno;
-
 void yyerror(const char *str)
 {
 
-        fprintf(stderr, "Error: %s\n\ton line: %s lineno: %d\n", str, linebuf, tprsp_lineno);
+        fprintf(stderr, "Error: %s \ton lineno: %d\n", str, yylineno);
 }
  
 int yywrap()
@@ -43,30 +41,25 @@ main()
 %token TIMESPEC
 %token OPARENS EPARENS
 %token QUOTE
+%token CHAR
 
 %token WEEK_HEADING
 %token WEEK_TITLE
 
-%token FEATURE_TITLE_CHAR
 %token FEATURE_HEADING
 %token FEATURE_MISC
 
 %token AIRDATE_HEADING
 
 %token TEASE_HEADING
-%token TEASE_CHAR
 
 %token INTRO_HEADING
-%token INTRO_CHAR
 
 %token CLIP_HEADING
-%token CLIP_CHAR 
 
 %token BRIDGE_HEADING
-%token BRIDGE_CHAR
 
 %token WRAP_HEADING
-%token WRAP_CHAR
 
 %token AGES_HEADING
 %token CATEGORIES_HEADING CATEGORY
@@ -108,92 +101,65 @@ section:	'\n'
 		categories
 		;
 
-categories:	CATEGORIES_HEADING categorylist 
+categories:	CATEGORIES_HEADING itemlist '\n' 
 		{
-			Dprintf("Category list: %s", wordbuf);
+			Dprintf("(yacc) Category list: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
 		;
 
-categorylist:	category
+ages:		AGES_HEADING itemlist '\n'
+		{
+			Dprintf("(yacc) Age list: %s", wordbuf);
+			wordbuf[0] = 0;
+		}
+		;
+
+itemlist:	WORD
 		{
 			strcat(wordbuf, $1);
 		}
 		|
-		categorylist COMMA category 
+		itemlist COMMA WORD 
 		{
 			strcat(wordbuf, ","); strcat(wordbuf, $3);
 		}
 		;
 
-category:	CATEGORY 
-		|
-		error 
-		{
-			/* FIXME fix error handling */
-			yyerrok;
-			Dputs("An invalid category was found, but I don't know what it was FIXME...");
-		}
-		;
-
-
-
-ages:		AGES_HEADING agelist
-		{
-			Dprintf("Age list: %s", wordbuf);
-			wordbuf[0] = 0;
-		}
-		;
-
-agelist:	age
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		agelist	COMMA age
-		{
-			strcat(wordbuf, ","); strcat(wordbuf, $3);
-		}
-		;
-
-age:		WORD
-		;
-
-wrap:		WRAP_HEADING wrapwords TIMESPEC
+wrap:		WRAP_HEADING words TIMESPEC
 		{
 			Dprintf("(yacc) Wrap: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
 		;
 
-bridge:		BRIDGE_HEADING bridgewords TIMESPEC
+bridge:		BRIDGE_HEADING words TIMESPEC
 		{
 			Dprintf("(yacc) Bridge: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
 		;	
 
-clip:		CLIP_HEADING OPARENS clipwords EPARENS
+clip:		CLIP_HEADING OPARENS words EPARENS
 		{
 			Dprintf("(yacc) Clip: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
 		;	
 
-intro:		INTRO_HEADING introwords TIMESPEC 
+intro:		INTRO_HEADING words TIMESPEC 
 		{
 			Dprintf("(yacc) INTRO: %s", wordbuf);
 			wordbuf[0] = 0;
 		}
 		;
 
-feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE feature_titlewords QUOTE FEATURE_MISC 
+feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words QUOTE FEATURE_MISC 
 		{
                         Dprintf("(yacc) Feature title: %s " , wordbuf);
 			wordbuf[0] = 0;
                 }
 		;
-
 
 week:		WEEK_HEADING NUMBER '-' WEEK_TITLE  
 		{
@@ -201,90 +167,28 @@ week:		WEEK_HEADING NUMBER '-' WEEK_TITLE
 		}
 		;
 
-
 airdate:	AIRDATE_HEADING WORD NUMBER COMMA NUMBER '\n' 
 		{
                         Dprintf("(yacc) Airdate: %s %s, %s", $2, $3, $5);
                 }
 		;
 
-tease:		TEASE_HEADING teasewords TIMESPEC 
+tease:		TEASE_HEADING words TIMESPEC 
 		{
        			Dprintf("(yacc) Tease: %s", wordbuf);
        			wordbuf[0] = 0;
 		}
 		;
 
-feature_titlewords:
-		FEATURE_TITLE_CHAR 
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		feature_titlewords FEATURE_TITLE_CHAR
-		{
-			strcat(wordbuf, $2);
-		}
-		;
-
-teasewords:	TEASE_CHAR 
+words:		CHAR 
 		{
 			strcat(wordbuf, $1);
 		}	
 		|
-		teasewords TEASE_CHAR 
+		words CHAR 
 		{
 			strcat(wordbuf, $2);
 		}
 		;
-
-introwords:	INTRO_CHAR
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		introwords INTRO_CHAR 
-		{
-			strcat(wordbuf, $2);
-		}
-		;
-
-clipwords:	CLIP_CHAR
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		clipwords CLIP_CHAR 
-		{
-			strcat(wordbuf, $2);
-		}
-		;
-
-bridgewords:	BRIDGE_CHAR
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		bridgewords BRIDGE_CHAR 
-		{
-			strcat(wordbuf, $2);
-		}
-		;
-
-wrapwords:	WRAP_CHAR
-		{
-			strcat(wordbuf, $1);
-		}
-		|
-		wrapwords WRAP_CHAR 
-		{
-			strcat(wordbuf, $2);
-		}
-		;
-
-
-
-
-
 
 
