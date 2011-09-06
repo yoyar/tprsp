@@ -17,5 +17,9 @@ The goal is to parse the plain text and convert it to a more usable format
 You can test the script parser like this:
     ./sp < samples/full1.txt
 
+There is a simple compilation script in ./build
+
+This parser requires the Jansson json library. http://www.digip.org/jansson/
+
 
 

@@ -1,7 +1,8 @@
 /lex.yy.c
-/sp
+/tprsp
 /sp.tab.c
 /sp.tab.h
 /*.swp
 /y.output
+
 
