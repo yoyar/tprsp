@@ -3,6 +3,10 @@ TPR Script Parser
 This parser generator configuration exists to facilitate the creation of web 
 content (or any other content) from scripts originally composed using M$ Word. 
 
+This is an atypical use of Flex/Bison. It is purpose specific and likely won't
+be useful as is for anyone in general. However, it may be instructive for 
+someone trying to learn about Flex and Bison.
+
 The scripts are converted to plain text using `anitword' and `iconv'. 
     example:
     antiword -t -w0 script.doc | iconv -t UTF8 -f UTF8
