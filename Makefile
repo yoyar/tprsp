@@ -7,4 +7,8 @@ all:
 clean:
 	rm tprsp sp.tab.* lex.yy.c
 
+install:
+	cp ./tprsp /usr/local/bin
+
+
 

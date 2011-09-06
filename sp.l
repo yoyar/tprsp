@@ -91,6 +91,7 @@ DBLQUOTE	“|”|\"
 
 ^(J|j)oanne {
 	BEGIN joanne;
+	Dprintf("Found Joanne on line: %d", yylineno);
 }
 
 <joanne>{

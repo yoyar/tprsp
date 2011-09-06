@@ -46,8 +46,9 @@ void yyerror(const char *str)
         //fprintf(stderr, "Error: %s \ton lineno: %d\n", str, yylineno);
 
 	json_t *err = json_pack(
-		"{s: s}",
-		"error: ", str
+		"{s: s, s: i}",
+		"error: ", str,
+		"lineno", yylineno
 	);
 
 	json_array_append(json, err);

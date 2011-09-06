@@ -34,7 +34,7 @@ char wordbuf[1024];
 json_t * json;
 json_t * itemlist;
 
-// #define NDEBUG 1;
+#define NDEBUG 1;
 
 #ifdef NDEBUG
 #define Dprintf(FORMAT, ...) ((void)0)
