@@ -23,8 +23,15 @@ extern json_t *itemlist;
 
 void yyerror(const char *str)
 {
+        //fprintf(stderr, "Error: %s \ton lineno: %d\n", str, yylineno);
 
-        fprintf(stderr, "Error: %s \ton lineno: %d\n", str, yylineno);
+	json_t *err = json_pack(
+		"{s: s}",
+		"error: ", str
+	);
+
+	json_array_append(json, err);
+
 }
  
 int yywrap()
@@ -70,6 +77,7 @@ main()
 
 %token AGES_HEADING
 %token CATEGORIES_HEADING CATEGORY
+%token AGES_OR_CATEGORY_CODE
 
 %error-verbose
 
@@ -90,13 +98,9 @@ section: 	'\n'
 		| 
 		week feature airdate tease intro clip bridge clip wrap ages categories
 		| 
-		week feature airdate tease intro clip bridge clip wrap ages 
-		| 
 		week feature airdate tease intro clip bridge clip wrap 
 		|
 		week feature airdate tease intro clip wrap ages categories
-		|
-		week feature airdate tease intro clip wrap ages 
 		|
 		week feature airdate tease intro clip wrap 
 		;
@@ -106,14 +110,26 @@ categories:	CATEGORIES_HEADING itemlist '\n'
 			Dprintf("(yacc) Category list: %s", wordbuf);
 
 			json_t * categories = json_pack(
-				"{s: o}",	
-				"categories", itemlist
+				"{s: {s: o}}",	
+				"categories", 
+				"items", itemlist
 			);
 
 			json_array_append(json, categories);
 
 			wordbuf[0] = 0;
 		}
+		|
+		CATEGORIES_HEADING error '\n'
+		{
+			json_t * err = json_pack(
+				"{s: s}",
+				"error",
+				"Categories group list error. Codes must be one or two uppercase letters."
+			);
+			json_array_append(json, err);
+		}
+
 		;
 
 ages:		AGES_HEADING itemlist '\n'
@@ -121,17 +137,28 @@ ages:		AGES_HEADING itemlist '\n'
 			Dprintf("(yacc) Age list: %s", wordbuf);
 
 			json_t * ages = json_pack(
-				"{s: o}",	
-				"ages", itemlist
+				"{s: {s:o}}",	
+				"ages", 		
+				"items", itemlist
 			);
 
 			json_array_append(json, ages);
 
 			wordbuf[0] = 0;
 		}
+		|
+		AGES_HEADING error '\n'
+		{
+			json_t * err = json_pack(
+				"{s: s}",
+				"error",
+				"Age group list error. Codes must be one or two uppercase letters."
+			);
+			json_array_append(json, err);
+		}
 		;
 
-itemlist:	WORD
+itemlist:	AGES_OR_CATEGORY_CODE	
 		{
 			strcat(wordbuf, $1);
 
@@ -140,7 +167,7 @@ itemlist:	WORD
 			json_array_append(itemlist, item);
 		}
 		|
-		itemlist COMMA WORD 
+		itemlist COMMA AGES_OR_CATEGORY_CODE
 		{
 			strcat(wordbuf, ","); strcat(wordbuf, $3);
 			json_t *item = json_pack( "s", $3);
@@ -192,15 +219,20 @@ clip:		CLIP_HEADING  clipwords
 			
 			json_array_append(json, clip);
 
-
 			wordbuf[0] = 0;
 		}
 		|
-		CLIP_HEADING error  
+		CLIP_HEADING error '\n' 
 		{
-			yyerrok;
-			yyclearin;
 			Dputs("(yacc) Missing Closing Parentheses for Clip");
+
+			json_t * clip = json_pack(
+				"{s: {s:s}}",
+				"clip",
+				"error", "Missing closing parentheses (clip)"
+			);
+
+			json_array_append(json, clip);
 		}
 		;	
 
@@ -222,7 +254,7 @@ intro:		INTRO_HEADING words TIMESPEC
 		}
 		;
 
-feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words QUOTE FEATURE_MISC 
+feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words QUOTE 
 		{
                         Dprintf("(yacc) Feature title: %s " , wordbuf);
 			
@@ -238,7 +270,7 @@ feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words QUOTE FEATURE_MISC
                 }
 		;
 
-week:		WEEK_HEADING NUMBER '-' WEEK_TITLE  
+week:		WEEK_HEADING NUMBER '-' WEEK_TITLE   
 		{
 			Dprintf("(yacc) WEEK  number:%s title:%s", $2, $4); 
 
@@ -269,6 +301,18 @@ airdate:	AIRDATE_HEADING WORD NUMBER COMMA NUMBER '\n'
 
 
                 }
+		|	
+		AIRDATE_HEADING error '\n'
+		{
+			json_t * err = json_pack(
+				"{s: {s:s}}",
+				"airdate",		
+				"error", "Invalid date format. "
+			);
+			json_array_append(json, err);
+
+			
+		}
 		;
 
 tease:		TEASE_HEADING words TIMESPEC 
@@ -284,6 +328,18 @@ tease:		TEASE_HEADING words TIMESPEC
 			json_array_append(json, tease);
 
        			wordbuf[0] = 0;
+		}
+		|
+		TEASE_HEADING words error '\n'
+		{
+			yyclearin;
+			json_t * err = json_pack(
+				"{s: {s:s}}",
+				"tease",		
+				"error", "Invalid Tease format. Failed to find time specification at end. "
+			);
+			json_array_append(json, err);
+
 		}
 		;
 

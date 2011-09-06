@@ -1,5 +1,5 @@
 
-lex sp.l && \
+flex sp.l && \
 bison --debug -d sp.y && \
 cc lex.yy.c sp.tab.c -o sp -ljansson
 

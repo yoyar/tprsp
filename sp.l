@@ -19,13 +19,16 @@
 
 %option yylineno
 
-TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\) 
 NUMBER		[0-9]
 WORD		[a-zA-Z][a-zA-Z0-9]*
+CODE		[A-Z][A-Z]?
 WHITESPACE	[ \t]
+W		[ \t]*
 BANNER		"THE PARENT REPORT"
 INSERT_COM	"- INSERT COMMERCIAL -"
+INSERT_COM2	"[ \t]*-INSERTCOMMERCIAL-"
 JOANNE		"^(J|j)oanne"
+TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\) 
 
 %%
 
@@ -51,7 +54,7 @@ JOANNE		"^(J|j)oanne"
 	}
 }
 
-<inweektext>.+\n {
+<inweektext>.+ {
 	Dprintf("WEEK TEXT: %s\n", yytext);
 	yylval = strdup(yytext);
 	BEGIN 0;
@@ -134,11 +137,16 @@ JOANNE		"^(J|j)oanne"
 	}
 }
 
-<infeaturetext>.+\n {
-	Dprintf("Feature Misc Text: %s\n", yytext);
-	yylval = strdup(yytext);
-	BEGIN 0;
-	return FEATURE_MISC;
+<infeaturetext>{
+	.+ {
+		Dprintf("Feature Misc Text: %s", yytext);
+		//yylval = strdup(yytext);
+		//return FEATURE_MISC;
+	}
+
+	\n\n {
+		BEGIN 0;
+	}
 }
 
 ^(C|c)lip:?.+\n({WHITESPACE}) {
@@ -217,10 +225,10 @@ JOANNE		"^(J|j)oanne"
 }
 
 <initemlist>{
-	({WORD}) {
+	({CODE}) {
 		Dprintf("List Item: %s", yytext); 
 		yylval = strdup(yytext); 
-		return WORD;
+		return AGES_OR_CATEGORY_CODE;
 	}
 	, { 
 		Dputs(","); 
@@ -232,8 +240,16 @@ JOANNE		"^(J|j)oanne"
 	}
 }
 
-({BANNER}|{INSERT_COM}) {
+({BANNER}|{INSERT_COM}|{INSERT_COM2}) {
 	Dputs("Line Ingored...");
+	;
+}
+
+\n {
+	;
+}
+
+[ \t] {
 	;
 }
 
