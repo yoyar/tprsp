@@ -5,7 +5,7 @@ content (or any other content) from scripts originally composed using M$ Word.
 
 The scripts are converted to plain text using `anitword' and `iconv'. 
     example:
-    antiword -t -w0 script.doc | iconv -t ASCII//TRANSLIT -f UTF8
+    antiword -t -w0 script.doc | iconv -t UTF8 -f UTF8
 
 The lines of interest in the scripts do have some structure. For example, they 
 more or less conform, with a few exceptions, to the format:
