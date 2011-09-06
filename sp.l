@@ -29,6 +29,8 @@ INSERT_COM	"- INSERT COMMERCIAL -"
 INSERT_COM2	"[ \t]*-INSERTCOMMERCIAL-"
 JOANNE		"^(J|j)oanne"
 TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\) 
+DASH		-|–
+DBLQUOTE	“|”|\"
 
 %%
 
@@ -42,13 +44,13 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 
 	({NUMBER})+ {
 		Dprintf("WEEK NUMBER: %s\n", yytext);
-		yylval = strdup(yytext);
+		yylval.str = strdup( yytext);
 		return NUMBER;
 	}
 
-	\- {
+	({DASH}) {
 		Dputs("DASH");	
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		BEGIN inweektext;
 		return '-';
 	}
@@ -56,7 +58,7 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 
 <inweektext>.+ {
 	Dprintf("WEEK TEXT: %s\n", yytext);
-	yylval = strdup(yytext);
+	yylval.str = strdup(yytext);
 	BEGIN 0;
 	return WEEK_TITLE;
 }
@@ -93,7 +95,7 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 
 <inwords>{
 	. {
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		return CHAR;
 	}
 	({TIMESPEC}) {
@@ -111,29 +113,33 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 <infeature>{
 	({NUMBER})+ {
 		Dprintf("Feature Number: %s", yytext);	
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		return NUMBER;
 	}
 
-	\- {
+	({DASH}) {
 		Dputs("DASH");
 		return '-';
 	}
 
-	\" {
+	({DBLQUOTE}) {
 		BEGIN infeaturetitle;
 		return QUOTE;
 	}
 }
 
 <infeaturetitle>{
-	[^"] {
-		yylval = strdup(yytext);
+	[^“”\"\n] {
+		yylval.str = strdup(yytext);
 		return CHAR;
 	}
-	\" {
+	({DBLQUOTE}) {
 		BEGIN infeaturetext;
 		return QUOTE;
+	}
+
+	\n {
+		BEGIN 0;
 	}
 }
 
@@ -144,7 +150,7 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 		//return FEATURE_MISC;
 	}
 
-	\n\n {
+	\n {
 		BEGIN 0;
 	}
 }
@@ -166,7 +172,7 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 	}
 
 	. {
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		return CHAR;
 	}
 
@@ -174,9 +180,6 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 		BEGIN 0;
 	}
 }
-
-
-
 
 ^(A|a)ir {
 	BEGIN air;
@@ -191,13 +194,13 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 <inairdate>{
 	({WORD})+ {
 		Dprintf("Month: %s", yytext);
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		return WORD;
 	}
 
 	({NUMBER})+ {
 		Dprintf("Date Number: %s", yytext);
-		yylval = strdup(yytext);
+		yylval.str = strdup(yytext);
 		return NUMBER;
 	}
 
@@ -227,7 +230,7 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 <initemlist>{
 	({CODE}) {
 		Dprintf("List Item: %s", yytext); 
-		yylval = strdup(yytext); 
+		yylval.str = strdup(yytext); 
 		return AGES_OR_CATEGORY_CODE;
 	}
 	, { 
@@ -250,6 +253,10 @@ TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\)
 }
 
 [ \t] {
+	;
+}
+
+. {
 	;
 }
 

@@ -1,16 +1,10 @@
 %{
-
 #include <stdio.h>
 #include <string.h>
 #include <jansson.h>
 #include "sp.c"
 
-#define YYSTYPE char *
-
 #define YYDEBUG 0
-	
-extern int yydebug;
-yydebug = 0;
 
 extern int yylineno;
 
@@ -31,7 +25,6 @@ void yyerror(const char *str)
 	);
 
 	json_array_append(json, err);
-
 }
  
 int yywrap()
@@ -49,40 +42,45 @@ main()
 
 %}
 
-%token NUMBER
-%token WORD
-%token COMMA
-%token TIMESPEC
-%token OPARENS EPARENS
-%token QUOTE
-%token CHAR
+%token<str> NUMBER
+%token<str> WORD
+%token<str> COMMA
+%token<str> TIMESPEC
+%token<str> OPARENS EPARENS
+%token<str> QUOTE
+%token<str> CHAR
 
-%token WEEK_HEADING
-%token WEEK_TITLE
+%token<str> WEEK_HEADING
+%token<str> WEEK_TITLE
 
-%token FEATURE_HEADING
-%token FEATURE_MISC
+%token<str> FEATURE_HEADING
+%token<str> FEATURE_MISC
 
-%token AIRDATE_HEADING
+%token<str> AIRDATE_HEADING
 
-%token TEASE_HEADING
+%token<str> TEASE_HEADING
 
-%token INTRO_HEADING
+%token<str> INTRO_HEADING
 
-%token CLIP_HEADING
+%token<str> CLIP_HEADING
 
-%token BRIDGE_HEADING
+%token<str> BRIDGE_HEADING
 
-%token WRAP_HEADING
+%token<str> WRAP_HEADING
 
-%token AGES_HEADING
-%token CATEGORIES_HEADING CATEGORY
-%token AGES_OR_CATEGORY_CODE
+%token<str> AGES_HEADING
+%token<str> CATEGORIES_HEADING CATEGORY
+%token<str> AGES_OR_CATEGORY_CODE
+
+%union {
+	char * str;
+}
+
+%type<str> itemlist week airdate words
 
 %error-verbose
 
 %%
-
 
 script:		/* empty script */
 		|
@@ -129,7 +127,6 @@ categories:	CATEGORIES_HEADING itemlist '\n'
 			);
 			json_array_append(json, err);
 		}
-
 		;
 
 ages:		AGES_HEADING itemlist '\n'
@@ -249,7 +246,6 @@ intro:		INTRO_HEADING words TIMESPEC
 
 			json_array_append(json, intro);
 
-
 			wordbuf[0] = 0;
 		}
 		;
@@ -268,6 +264,15 @@ feature:	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words QUOTE
 
 			wordbuf[0] = 0;
                 }
+		|
+	 	FEATURE_HEADING NUMBER '-' NUMBER QUOTE words error
+		{
+			json_t * err = json_pack(
+				"{s:s}", "error", 
+				"Invalid Feature line format. Missing end quote."
+			);
+			json_array_append(json, err);
+		}
 		;
 
 week:		WEEK_HEADING NUMBER '-' WEEK_TITLE   
@@ -282,6 +287,16 @@ week:		WEEK_HEADING NUMBER '-' WEEK_TITLE
 			);
 
 			json_array_append(json, week);
+		}
+		|
+		WEEK_HEADING NUMBER '-' error '\n' 
+		{
+			json_t * err = json_pack(
+				"{s: s}",
+				"error",
+				"Invalid Week line format. "
+			);
+			json_array_append(json, err);
 		}
 		;
 
@@ -298,8 +313,6 @@ airdate:	AIRDATE_HEADING WORD NUMBER COMMA NUMBER '\n'
 			);
 			
 			json_array_append(json, airdate);
-
-
                 }
 		|	
 		AIRDATE_HEADING error '\n'
@@ -310,8 +323,6 @@ airdate:	AIRDATE_HEADING WORD NUMBER COMMA NUMBER '\n'
 				"error", "Invalid date format. "
 			);
 			json_array_append(json, err);
-
-			
 		}
 		;
 
