@@ -8,7 +8,7 @@ The scripts are converted to plain text using `anitword' and `iconv'.
     antiword -t -w0 script.doc | iconv -t ASCII//TRANSLIT -f UTF8
 
 The lines of interest in the scripts do have some structure. For example, they 
-more or less conform to the format, with a few exceptions: 
+more or less conform, with a few exceptions, to the format:
     header: words (time specification)
 
 The goal is to parse the plain text and convert it to a more usable format 
