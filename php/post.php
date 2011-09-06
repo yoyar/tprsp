@@ -6,6 +6,8 @@ if( empty($argv[1]) ) {
 	usage();
 }
 
+$url = 'http://localhost:88/word2json.php';
+
 function usage() {
 	echo "\t", 'Usage: ./', basename(__FILE__), ' <word_filename>', "\n";
 	exit();
@@ -37,7 +39,7 @@ function do_post_request($url, $data, $optional_headers = null)
 }
 
 echo do_post_request(
-	'http://localhost:88/word2json.php', 
+	$url,
 	file_get_contents($argv[1])
 );
 
