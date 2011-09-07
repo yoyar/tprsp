@@ -47,7 +47,7 @@ void yyerror(const char *str)
 
 	json_t *err = json_pack(
 		"{s: s, s: i}",
-		"error: ", str,
+		"error", str,
 		"lineno", yylineno
 	);
 
