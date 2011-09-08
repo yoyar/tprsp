@@ -43,6 +43,9 @@
 %x initemlist
 %x inwords
 
+%x categorylist
+%x ageslist
+
 %option yylineno
 
 NUMBER		[0-9]
@@ -57,6 +60,25 @@ JOANNE		"^(J|j)oanne"
 TIMESPEC	\(:?[0-9]+(\.[0-9]+)?\) 
 DASH		-|–
 DBLQUOTE	“|”|\"
+
+N		"N"
+I		"I"
+IT		"IT"
+PS		"PS"
+ES		"ES"
+PT		"PT"
+T		"T"
+B		"B"
+D		"D"
+SF		"SF"
+E		"E"
+F		"F"
+H		"H"
+LS		"LS"
+KC		"KC"
+SL		"SL"
+
+INVALIDCODE	[^,\n \t]+
 
 %%
 
@@ -244,21 +266,27 @@ DBLQUOTE	“|”|\"
 
 ^(C|c)ategories: {
 	Dputs("Categories Heading");
-	BEGIN initemlist;
+	BEGIN categorylist;
 	return CATEGORIES_HEADING;
 }
 
 ^(A|a)ges: {
 	Dputs("Ages Heading");
-	BEGIN initemlist;
+	BEGIN ageslist;
 	return AGES_HEADING;
 }
 
-<initemlist>{
-	({CODE}) {
-		Dprintf("List Item: %s", yytext); 
-		yylval.str = strdup(yytext); 
-		return AGES_OR_CATEGORY_CODE;
+<ageslist>{
+	{N}|{I}|{IT}|{PS}|{ES}|{PT}|{T} {
+                Dprintf("List Item: %s", yytext);
+                yylval.str = strdup(yytext);
+                return AGES_OR_CATEGORY_CODE;
+        }
+	{INVALIDCODE} {
+		char err[50];
+		sprintf(err, "Invalid Ages code found: > %s <", yytext);
+		yyerror( err );
+		return INVALID_CODE;
 	}
 	, { 
 		Dputs(","); 
@@ -266,7 +294,32 @@ DBLQUOTE	“|”|\"
 	}
 	\n {
 		BEGIN 0;
-		return '\n';
+		yylval.str = strdup(yytext);
+		return NEWLINE;
+	}
+}
+
+<categorylist>{
+	{B}|{D}|{SF}|{E}|{N}|{F}|{H}|{LS}|{KC}|{SL}|{F} {
+                Dprintf("List Item: %s", yytext);
+                yylval.str = strdup(yytext);
+                return AGES_OR_CATEGORY_CODE;
+        }
+
+	{INVALIDCODE} {
+		char err[50];
+		sprintf(err, "Invalid Category code found: > %s <", yytext);
+		yyerror( err );
+		return INVALID_CODE;
+	}
+	, { 
+		Dputs(","); 
+		return COMMA;
+	}
+	\n {
+		BEGIN 0;
+		yylval.str = strdup(yytext);
+		return NEWLINE;
 	}
 }
 

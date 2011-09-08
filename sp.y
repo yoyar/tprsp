@@ -76,6 +76,7 @@ main()
 %token<str> OPARENS EPARENS
 %token<str> QUOTE
 %token<str> CHAR
+%token<str> NEWLINE
 
 %token<str> WEEK_HEADING
 %token<str> WEEK_TITLE
@@ -97,7 +98,7 @@ main()
 
 %token<str> AGES_HEADING
 %token<str> CATEGORIES_HEADING CATEGORY
-%token<str> AGES_OR_CATEGORY_CODE
+%token<str> AGES_OR_CATEGORY_CODE INVALID_CODE
 
 %union {
 	char * str;
@@ -130,7 +131,7 @@ section: 	'\n'
 		week feature airdate tease intro clip wrap 
 		;
 
-categories:	CATEGORIES_HEADING itemlist '\n' 
+categories:	CATEGORIES_HEADING itemlist NEWLINE 
 		{
 			Dprintf("(yacc) Category list: %s", wordbuf);
 
@@ -145,18 +146,18 @@ categories:	CATEGORIES_HEADING itemlist '\n'
 			wordbuf[0] = 0;
 		}
 		|
-		CATEGORIES_HEADING error '\n'
+		CATEGORIES_HEADING error NEWLINE 
 		{
 			json_t * err = json_pack(
 				"{s: s}",
 				"error",
-				"Categories group list error. Codes must be one or two uppercase letters."
+				"Categories group list error. "
 			);
 			json_array_append(json, err);
 		}
 		;
 
-ages:		AGES_HEADING itemlist '\n'
+ages:		AGES_HEADING itemlist NEWLINE 
 		{
 			Dprintf("(yacc) Age list: %s", wordbuf);
 
@@ -171,12 +172,12 @@ ages:		AGES_HEADING itemlist '\n'
 			wordbuf[0] = 0;
 		}
 		|
-		AGES_HEADING error '\n'
+		AGES_HEADING error NEWLINE 
 		{
 			json_t * err = json_pack(
 				"{s: s}",
 				"error",
-				"Age group list error. Codes must be one or two uppercase letters."
+				"Age group list error."
 			);
 			json_array_append(json, err);
 		}

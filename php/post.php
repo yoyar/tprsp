@@ -8,7 +8,7 @@ if( empty($argv[1]) ) {
 	usage();
 }
 
-$url = 'http://localhost:88/word2json.php';
+$url = 'http://localhost:88/tprsp/php/word2json.php';
 
 function usage() {
 	echo "\t", 'Usage: ./', basename(__FILE__), ' <word_filename>', "\n";

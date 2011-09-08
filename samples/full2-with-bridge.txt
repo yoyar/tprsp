@@ -22,8 +22,8 @@ Clip: "We need to make...in healthy ways,"	(:12.5)
 
 Joanne Wrap: For more, check out The Parent Report.com. Tomorrow, family mealtime. I'm Joanne Wilson. (4.5)
 
-Ages: 			A,B
-Categories:	 FF, H,A
+Ages: 		N,I
+Categories:	B,D,SF, FOO 
 
 
 
