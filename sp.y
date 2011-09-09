@@ -91,6 +91,8 @@ main()
 %token<str> INTRO_HEADING
 
 %token<str> CLIP_HEADING
+%token<str> CLIP_OPEN_PARENTHESES
+%token<str> CLIP_CLOSE_PARENTHESES
 
 %token<str> BRIDGE_HEADING
 
@@ -122,14 +124,36 @@ sections: 	section
 
 section: 	'\n' 
 		| 
-		week feature airdate tease intro clip bridge clip wrap ages categories
+		stdsections bridge clip wrap ages categories
 		| 
-		week feature airdate tease intro clip bridge clip wrap 
+		stdsections bridge clip wrap 
+		| 
+		stdsections bridge clip error 
+		{
+			json_t * err = json_pack(
+                                "{s: s}",
+                                "error",
+                                "Hint: Possible missing closing parentheses after Clip section. "
+                        );
+                        json_array_append(json, err);
+		}
 		|
-		week feature airdate tease intro clip wrap ages categories
+		stdsections wrap ages categories
 		|
-		week feature airdate tease intro clip wrap 
+		stdsections wrap 
+		|
+		stdsections error
+		{
+			json_t * err = json_pack(
+				"{s: s}",
+				"error",
+				"Hint: Possible missing closing parentheses after Clip section. "
+			);
+			json_array_append(json, err);
+		}
 		;
+
+stdsections:	week feature airdate tease intro clip;
 
 categories:	CATEGORIES_HEADING itemlist NEWLINE 
 		{
@@ -245,23 +269,34 @@ clip:		CLIP_HEADING  clipwords
 			json_array_append(json, clip);
 
 			wordbuf[0] = 0;
-		}
+		} 
 		|
 		CLIP_HEADING error '\n' 
 		{
 			Dputs("(yacc) Missing Closing Parentheses for Clip");
 
-			json_t * clip = json_pack(
+			json_t * err = json_pack(
 				"{s: {s:s}}",
 				"clip",
-				"error", "Missing closing parentheses (clip)"
+				"error", "Missing opening or closing parentheses (clip)"
 			);
 
-			json_array_append(json, clip);
+			json_array_append(json, err);
 		}
 		;	
 
-clipwords:	'(' words ')' 
+clipwords:	CLIP_OPEN_PARENTHESES words CLIP_CLOSE_PARENTHESES 
+		|
+		error words CLIP_CLOSE_PARENTHESES
+		{
+			json_t * err = json_pack(
+				"{s: {s:s}}",
+				"clip",
+				"error", "Missing open parentheses for Clip."
+			);
+
+			json_array_append(json, err);
+		}
 		;
 
 intro:		INTRO_HEADING words TIMESPEC 

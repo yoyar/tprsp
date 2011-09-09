@@ -204,7 +204,8 @@ INVALIDCODE	[^,\n \t]+
 	}
 }
 
-^(C|c)lip:?.+\n({WHITESPACE}) {
+^(C|c)lip:?.+ {
+	/* the clip heading line starts with Clip: and then continues until the end of the line */
 	Dprintf("Clip Heading Line: %s \n", yytext);
 	BEGIN inclip;
 	return CLIP_HEADING;
@@ -212,12 +213,16 @@ INVALIDCODE	[^,\n \t]+
 
 <inclip>{
 
-	\( {
-		return '(';
+ 	\n[ \t]*\( {
+		/* the opening parens start after the clip heading, then some whitespace, then an open paren */
+		return CLIP_OPEN_PARENTHESES;
 	}
 
-	\) {
-		return ')';
+
+	\)\n\n {
+		/* the final closing paren appears at the end with two line breaks afterwards */
+		BEGIN 0;
+		return CLIP_CLOSE_PARENTHESES;
 	}
 
 	. {
@@ -225,9 +230,8 @@ INVALIDCODE	[^,\n \t]+
 		return CHAR;
 	}
 
-	\n {
-		BEGIN 0;
-	}
+
+
 }
 
 ^(A|a)ir {
