@@ -2,8 +2,9 @@
 
 require_once 'do_post_request.inc.php';
 require_once 'render.inc.php';
+require_once 'JsonResult.php';
 
-define('TPR_POST_URL', 'http://localhost:88/tprsp/php/word2json.php');
+define('TPR_POST_URL', '##word2json.url##');
 
 ?>
 <html>
@@ -54,15 +55,15 @@ Validate a Radio Script
 
 <?php
 
-define('TPR_RS_UPLOADS', '/tmp/tpr_rs_uploads');
+define('TPR_RS_UPLOAD_TMP_DIR', '/tmp/tpr_rs_uploads');
 
-if( ! is_dir(TPR_RS_UPLOADS) ) {
-	mkdir(TPR_RS_UPLOADS);
+if( ! is_dir(TPR_RS_UPLOAD_TMP_DIR) ) {
+	mkdir(TPR_RS_UPLOAD_TMP_DIR);
 }
 
 if( !empty($_FILES) ) {
 
-	$filename = tempnam(TPR_RS_UPLOADS, 'tpr_rs_zip_');
+	$filename = tempnam(TPR_RS_UPLOAD_TMP_DIR, 'tpr_rs_zip_');
 
 	if( $_FILES['userfile']['size'] === 0 ) {
 		echo "<P>Error: no file was uploaded. <br>";
@@ -75,53 +76,24 @@ if( !empty($_FILES) ) {
 	}
 
 	if( move_uploaded_file($_FILES['userfile']['tmp_name'], $filename)) {
-
-		$result = do_post_request(
-			TPR_POST_URL, 
-			file_get_contents( $filename )
-		);
-
-		//`cp $filename /tmp/uploaded.test.ms.word.file.doc`;
-
-		$sections = json_decode($result);
-
-		if( null == $sections) {
-			echo "<P>Unable to parse document. Is it a TPR script document?<br>";
+		
+		try {
+			$json = new JsonResult($filename);	
+		} catch (Exception $e) {
+			echo "<P>Unable to parse document. Is it a TPR script document? <br><pre>Exception: $e</pre>";
 			exit();
 		}
+		
+		//`cp $filename /tmp/uploaded.test.ms.word.file.doc`;
 
-
-		$errorsFlag = false;
-
-		array_walk(
-			&$sections,
-			function(&$section) {
-				global $errorsFlag;
-				if( @$section->error) $errorsFlag = true; 
-			}
-		);
-
-		if( $errorsFlag ) echo '<div class="error errors-found">Errors found in script. '.
+		if( $json->hasErrors() ) echo '<div class="error errors-found">Errors found in script. '.
 					'Please examine the output below.</div>';
-
 		
 		
-		foreach($sections as $section ) {
-
-			$keys = array_keys((array)$section);
-			$sectionName = ucfirst($keys[0]);
-
-			$rendererName = $sectionName . 'Renderer'; 
-
-			if( class_exists($rendererName)) {
-				$renderer = new $rendererName($section);
-				echo $renderer->render();
-			} else {
-				echo "<P>[$rendererName] Renderer does not exist.";
-				var_dump($section);
-			}
+		foreach( $json->getRenderingIterator() as $sectionName => $section) {
+			echo $section; 
 		}
-
+		
 		
 	} else {
 		echo "Invalid file";

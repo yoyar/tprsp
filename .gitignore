@@ -4,5 +4,8 @@
 /sp.tab.h
 /*.swp
 /y.output
+.buildpath
+.project
+.settings/
 
 

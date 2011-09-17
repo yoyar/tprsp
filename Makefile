@@ -1,4 +1,6 @@
 
+BASEURL_LOCAL=/web/vhosts/legacy.theparentreport.com/www/html/admin/radio
+
 all:
 	flex sp.l 
 	bison -d sp.y 
@@ -9,6 +11,12 @@ clean:
 
 install:
 	cp ./tprsp /usr/local/bin
+
+deploy.local:
+	cp -a ./php/* ./php/.htaccess $(BASEURL_LOCAL)
+	sed -i 's/##word2json.url##/http:\/\/localhost:8082\/admin\/radio\/word2json.php/' \
+		$(BASEURL_LOCAL)/validate.php $(BASEURL_LOCAL)/handlezip.php 
+
 
 
 

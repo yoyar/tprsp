@@ -102,6 +102,10 @@ INVALIDCODE	[^,\n \t]+
 		BEGIN inweektext;
 		return '-';
 	}
+
+	. {
+		;
+	}
 }
 
 <inweektext>.+ {
@@ -174,6 +178,10 @@ INVALIDCODE	[^,\n \t]+
 	({DBLQUOTE}) {
 		BEGIN infeaturetitle;
 		return QUOTE;
+	}
+
+	. {
+		;
 	}
 }
 
